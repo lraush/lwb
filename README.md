@@ -1,117 +1,251 @@
-# lwb5
+# ⚖️ lifeWorkBalances — Персональный ИИ-ассистент
 
-***
-##  С чего начать?
-Для того, чтобы облегчить знакомство с сервисом GitFlic и первые шаги в нём, мы подготовили несколько рекомендаций.  
-Уже опытный пользователь? Отредактируйте данный **README** файл по своему усмотрению.  
-Не знаете что добавить в него? Перейдите в раздел `"Что должен содержать README файл"`, в котором описаны ключевые компоненты хорошего README файла. 
+Полноценная SaaS-платформа на микросервисной архитектуре для управления работой, учёбой и личной жизнью.
 
-## Добавьте свои файлы
-Если вы решили начать разработку проекта с создания репозитория в нашем сервисе, тогда клонируйте себе данный репозиторий следующим образом:
-
+## 🏗️ Архитектура
 
 ```
-git clone https://gitflic.ru/project/kabanova-crazy-vera/lwb5.git
-cd lwb5
-**добавьте первые файлы вашего проекта**
-git add .
-git commit -m "Первый коммит"
-git push -u origin master
+┌─────────────────────────────────────────────────────┐
+│                    Браузер / Desktop                 │
+└─────────────────────┬───────────────────────────────┘
+                      │ :80
+┌─────────────────────▼───────────────────────────────┐
+│              Nginx API Gateway                       │
+│  /         → Frontend (React + Vite)                │
+│  /api/auth → Auth Service      :3001                │
+│  /api/tasks → Task Service     :3002                │
+│  /api/calendar → Calendar      :3003                │
+│  /api/finance  → Finance       :3004                │
+│  /api/learning → Learning      :3005                │
+│  /api/health   → Health        :3006                │
+│  /api/events   → Events        :3007                │
+│  /api/files    → File Service  :3008                │
+│  /api/ai       → AI Service    :8000 (Python)       │
+└─────────────────────────────────────────────────────┘
+         │              │               │
+    PostgreSQL x7    MinIO S3       OpenAI API
 ```
 
-Уже что-то делали в проекте? В таком случае инициализируйте гит-репозиторий в корне проекта и добавьте текущий репозиторий как удалённый репозиторий:
+## 🚀 Быстрый старт
+
+### 1. Требования
+
+- Docker Desktop 24+
+- Docker Compose 2.24+
+- 8GB RAM (рекомендуется 16GB)
+
+### 2. Клонирование и настройка
+
+```bash
+git clone <your-repo>
+cd lifeworkbalances
+
+# Скопируй и заполни .env
+cp .env.example .env
+
+# Обязательно: JWT_SECRET (любая строка 32+ символа)
+# Опционально: OPENAI_API_KEY (для ИИ-функций)
+```
+
+### 3. Запуск
+
+```bash
+# Первый запуск (сборка занимает 5-10 мин)
+docker-compose up --build
+
+# Последующие запуски
+docker-compose up
+
+# В фоне
+docker-compose up -d
+```
+
+### 4. Открыть в браузере
 
 ```
-cd existing_folder
-git init
-git remote add origin https://gitflic.ru/project/kabanova-crazy-vera/lwb5.git
-git clone
-**добавьте новые файлы**
-git add .
-git commit -m "Новый коммит"
-git push -u origin master
+http://localhost
 ```
-***
 
+**Демо-доступ:** `demo@lwb.app` / `demo1234`
 
-# Что должен содержать README файл
+---
 
+## 📁 Структура проекта
 
-Прежде всего, стоит понимать, что `README.md` — это краткая документация. Это первое, что видит человек, который открывает репозиторий. Поэтому здесь важно дать достаточно информации о проекте и рассказать, что он из себя представляет.
-Ключевая информация, которую должен содержать README файл:
+```
+lifeworkbalances/
+├── frontend/                    # React 18 + Vite + Tailwind
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Dashboard/       # Главная страница
+│   │   │   ├── Work/            # Kanban-доска задач
+│   │   │   ├── Finance/         # Финансы + графики
+│   │   │   ├── Learning/        # Роадмапы + карточки
+│   │   │   ├── Health/          # Здоровье + привычки
+│   │   │   ├── Sports/          # Тренировки
+│   │   │   ├── Travel/          # Путешествия
+│   │   │   ├── Media/           # Книги + фильмы
+│   │   │   ├── AI/              # ИИ-ассистент
+│   │   │   └── Shared/          # Layout, компоненты
+│   │   ├── store/               # Zustand state
+│   │   ├── utils/               # API клиент
+│   │   └── pages/               # LoginPage
+│   └── Dockerfile
+│
+├── backend/
+│   ├── auth-service/            # JWT аутентификация     :3001
+│   ├── task-service/            # Kanban задачи          :3002
+│   ├── calendar-service/        # Календарь событий      :3003
+│   ├── finance-service/         # Финансы                :3004
+│   ├── learning-service/        # Роадмапы + сессии      :3005
+│   ├── health-service/          # Здоровье + привычки    :3006
+│   ├── events-service/          # Спорт + медиа          :3007
+│   ├── file-service/            # MinIO S3 хранилище     :3008
+│   └── ai-service/              # Python FastAPI + GPT   :8000
+│
+├── nginx/
+│   └── nginx.conf               # API Gateway
+│
+├── docker-compose.yml
+├── .env.example
+└── README.md
+```
 
-## Название и описание
-Название проекта должно быть простым и понятным (чаще всего это одно слово).
-Описание должно описывать основные функции проекта, включая его особенности и назначение. 
-Если у вашего проекта есть альтернативные проекты, то в описании можно перечислить ключевые отличия, которые выделяют ваш проект на фоне всех остальных.
+---
 
-## Установка и настройка
-Также в `README` файле рекомендуется перечислить необходимые инструкции для установки, 
-будь то использование пакетных менеджеров (например, `Homebrew` на MacOS или `apt` на Linux), 
-зависимости, которые могут понадобиться в ходе использования, а также шаги по их настройке.
+## 🔧 Настройка ИИ
 
-## Совместная разработка
-Можно добавить информацию о том, как принять участие в разработке вашего проекта, как стать непосредственным участником, правила оформления pull-requests и т.д.
+### OpenAI (рекомендуется)
 
-## Контакты
-Ссылки на внешние ресурсы, такие как документация, блог, страница проекта в социальных сетях, сообщество проекта и т.д.
+```env
+OPENAI_API_KEY=sk-...
+```
 
-## Статус проекта
-В данном разделе рекомендуется указывать, на какой стадии находится проект, активно разрабатывается или находится в стадии застоя.
-Если же проект готов и во всю используется, можно указывать актуальную версию, а также последние изменения, которые были сделаны с момента предыдущего релиза.
+Используется: GPT-4o-mini (чат), Whisper (голос), GPT-4o Vision (экран)
 
-***
+### Без API ключа
 
-# Полезные ссылки
+Приложение работает в демо-режиме с заготовленными ответами.
 
-***
+---
 
-## Работа с проектом
+## 🛠️ Разработка без Docker
 
-- [ ] [Как создать проект](https://docs.gitflic.ru/project/project_create)
-- [ ] [Как импортировать проект](https://docs.gitflic.ru/project/import_base)
-- [ ] [Запросы на слияние](https://docs.gitflic.ru/project/merge_request)
-- [ ] [Зеркалирование проекта](https://docs.gitflic.ru/project/mirror)
-- [ ] [Импортировать проект с GitLab](https://docs.gitflic.ru/project/import)
+### Frontend
 
-## Команды
-- [ ] [Создание команды](https://docs.gitflic.ru/team/create)
-- [ ] [Обзор команды](https://docs.gitflic.ru/team/view)
-- [ ] [Настройка команды](https://docs.gitflic.ru/team/settings)
+```bash
+cd frontend
+npm install
+npm run dev
+# http://localhost:5173
+```
 
-## Реестр пакетов
-- [ ] [Реестр пакетов](https://docs.gitflic.ru/registry/package)
-- [ ] [PyPi](https://docs.gitflic.ru/registry/pypi_registry)
-- [ ] [Generic](https://docs.gitflic.ru/registry/generic_registry)
-- [ ] [Maven](https://docs.gitflic.ru/registry/maven_registry)
-- [ ] [Docker](https://docs.gitflic.ru/registry/docker)
+### Backend (отдельный сервис)
 
-## Компании
-- [ ] [Создание компании](https://docs.gitflic.ru/company/create)
-- [ ] [Обзор компании](https://docs.gitflic.ru/company/view)
-- [ ] [Тарифы и оплата](https://docs.gitflic.ru/company/price)
-- [ ] [Запуск агента компании](https://docs.gitflic.ru/company/saas_runner_setup)
+```bash
+cd backend/auth-service
+npm install
+npx prisma migrate dev
+npm run dev
+```
 
-## CI/CD
-- [ ] [Что такое GitFlic CI/CD](https://docs.gitflic.ru/cicd/introduction)
-- [ ] [Задача (Job)](https://docs.gitflic.ru/cicd/job)
-- [ ] [Конвейер (pipeline)](https://docs.gitflic.ru/cicd/pipeline)
-- [ ] [Агенты](https://docs.gitflic.ru/cicd/agent)
-- [ ] [Справочник для .yaml файла](https://docs.gitflic.ru/cicd/gitflic-ci-yaml)
+### AI Service
 
-## API
-- [ ] [Введение в GitFlic API](https://docs.gitflic.ru/api/intro)
-- [ ] [Методы для администратора](https://docs.gitflic.ru/api/admin)
-- [ ] [Получение access токена](https://docs.gitflic.ru/api/access-token)
+```bash
+cd backend/ai-service
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
+```
 
+---
 
-## Панель администратора
-- [ ] [Панель администратора](https://docs.gitflic.ru/admin_panel/intro)
-- [ ] [Панель управления](https://docs.gitflic.ru/admin_panel/dashboard)
-- [ ] [Настройка LDAP](https://docs.gitflic.ru/admin_panel/ldap)
-- [ ] [Ключевые настройки](https://docs.gitflic.ru/admin_panel/settings)
+## 📡 API Endpoints
 
-## Общая информация
-- [ ] [Глоссарий](https://docs.gitflic.ru/common/gloss)
-- [ ] [Права доступа ролей](https://docs.gitflic.ru/common/manage_roles)
-- [ ] [Вебхуки](https://docs.gitflic.ru/common/webhook)
+### Auth Service (:3001)
+
+| Method | Path      | Описание         |
+| ------ | --------- | ---------------- |
+| POST   | /register | Регистрация      |
+| POST   | /login    | Вход             |
+| GET    | /me       | Профиль          |
+| PUT    | /me       | Обновить профиль |
+
+### Task Service (:3002)
+
+| Method | Path   | Описание        |
+| ------ | ------ | --------------- |
+| GET    | /      | Список задач    |
+| POST   | /      | Создать задачу  |
+| PATCH  | /:id   | Обновить задачу |
+| DELETE | /:id   | Удалить задачу  |
+| GET    | /stats | Статистика      |
+
+### AI Service (:8000)
+
+| Method | Path            | Описание         |
+| ------ | --------------- | ---------------- |
+| POST   | /chat           | Чат с ИИ         |
+| POST   | /transcribe     | Голос → текст    |
+| POST   | /analyze-screen | Анализ скриншота |
+| POST   | /generate-pdf   | Генерация PDF    |
+
+---
+
+## 🔒 Безопасность
+
+- JWT токены с 30-дневным сроком
+- Раздельные PostgreSQL БД для каждого сервиса
+- Rate limiting через Nginx (60 req/min API, 20 req/min AI)
+- Валидация входных данных на всех эндпоинтах
+- Изоляция данных по userId на уровне БД
+
+---
+
+## 🐛 Частые проблемы
+
+**Порт 80 занят:**
+
+```bash
+# Найти процесс
+lsof -i :80
+# Изменить порт в docker-compose.yml: "8080:80"
+```
+
+**Миграции не применились:**
+
+```bash
+docker-compose exec auth-service npx prisma migrate deploy
+```
+
+**Очистить всё и начать заново:**
+
+```bash
+docker-compose down -v
+docker-compose up --build
+```
+
+**Логи конкретного сервиса:**
+
+```bash
+docker-compose logs -f ai-service
+docker-compose logs -f auth-service
+```
+
+---
+
+## 🗺️ Роадмап
+
+- [ ] Telegram-бот интеграция
+- [ ] PWA (офлайн-режим)
+- [ ] Экспорт данных в PDF/CSV
+- [ ] Тёмная/светлая тема
+- [ ] Mobile приложение (React Native)
+- [ ] Интеграция с Google Calendar
+- [ ] Pomodoro таймер
+- [ ] Аналитика продуктивности
+
+---
+
+## 📄 Лицензия
+
+MIT — личный проект, свободное использование.
