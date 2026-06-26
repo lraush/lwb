@@ -1,0 +1,53 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x", "linux-arm64-openssl-3.0.x", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Workout {
+  id       String   @id @default(cuid())
+  userId   String
+  type     String
+  duration Int
+  distance String   @default("")
+  calories Int      @default(0)
+  notes    String   @default("")
+  date     DateTime @default(now())
+
+  @@index([userId])
+  @@map("workouts")
+}
+
+model Trip {
+  id          String    @id @default(cuid())
+  userId      String
+  destination String
+  emoji       String    @default("")
+  travelDate  DateTime?
+  budget      Float     @default(0)
+  status      String    @default("planned")
+  notes       String    @default("")
+  createdAt   DateTime  @default(now())
+
+  @@index([userId])
+  @@map("trips")
+}
+
+model MediaItem {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  author    String   @default("")
+  year      Int?
+  status    String   @default("wishlist")
+  rating    Int?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("media_items")
+}

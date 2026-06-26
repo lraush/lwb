@@ -1,0 +1,176 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body, #root { height: 100%; }
+  body {
+    background: #07070d;
+    color: #f0f0ff;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #21213f; border-radius: 4px; }
+}
+
+@layer components {
+  /* ── Glass card ─────────────────────────────── */
+  .glass-card {
+    @apply rounded-2xl border backdrop-blur-md;
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.08);
+    box-shadow: 0 4px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  .glass-card-hover {
+    @apply glass-card transition-all duration-200;
+  }
+  .glass-card-hover:hover {
+    background: rgba(255,255,255,0.07);
+    border-color: rgba(124,106,247,0.3);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(124,106,247,0.15);
+    transform: translateY(-1px);
+  }
+
+  /* ── Neon button ────────────────────────────── */
+  .btn-neon {
+    @apply relative px-5 py-2.5 rounded-xl font-semibold text-sm text-white transition-all duration-200 overflow-hidden;
+    background: linear-gradient(135deg, #7c6af7, #ec4899);
+    box-shadow: 0 2px 16px rgba(124,106,247,0.4);
+  }
+  .btn-neon:hover {
+    box-shadow: 0 4px 24px rgba(124,106,247,0.65), 0 0 40px rgba(236,72,153,0.2);
+    transform: translateY(-1px);
+  }
+  .btn-neon:active { transform: scale(0.97); }
+
+  .btn-glass {
+    @apply px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.8);
+  }
+  .btn-glass:hover {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    border-color: rgba(124,106,247,0.4);
+  }
+
+  /* ── Input ──────────────────────────────────── */
+  .input-glass {
+    @apply w-full rounded-xl text-sm px-4 py-2.5 outline-none transition-all duration-200;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #f0f0ff;
+  }
+  .input-glass::placeholder { color: #5a5a80; }
+  .input-glass:focus {
+    border-color: rgba(124,106,247,0.6);
+    box-shadow: 0 0 0 3px rgba(124,106,247,0.12);
+    background: rgba(255,255,255,0.07);
+  }
+
+  /* ── Badge ──────────────────────────────────── */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-semibold;
+  }
+  .badge-purple { background: rgba(124,106,247,0.15); color: #a99ff8; border: 1px solid rgba(124,106,247,0.3); }
+  .badge-green  { background: rgba(16,185,129,0.12);  color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+  .badge-amber  { background: rgba(245,158,11,0.12);  color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+  .badge-red    { background: rgba(239,68,68,0.12);   color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+  .badge-cyan   { background: rgba(34,211,238,0.1);   color: #22d3ee; border: 1px solid rgba(34,211,238,0.25); }
+
+  /* ── Progress ───────────────────────────────── */
+  .progress-track {
+    @apply h-1.5 rounded-full overflow-hidden;
+    background: rgba(255,255,255,0.07);
+  }
+  .progress-fill {
+    @apply h-full rounded-full transition-all duration-700;
+    background: linear-gradient(90deg, #7c6af7, #a99ff8);
+  }
+
+  /* ── Sidebar nav item ───────────────────────── */
+  .nav-item {
+    @apply flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-xl cursor-pointer transition-all duration-200 relative;
+    color: #5a5a80;
+  }
+  .nav-item:hover { color: #9090b8; background: rgba(255,255,255,0.04); }
+  .nav-item.active {
+    color: #a99ff8;
+    background: rgba(124,106,247,0.15);
+    box-shadow: 0 0 0 1px rgba(124,106,247,0.3);
+  }
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: -1px;
+    width: 3px;
+    height: 60%;
+    border-radius: 0 3px 3px 0;
+    background: linear-gradient(180deg, #7c6af7, #a99ff8);
+  }
+
+  /* ── Stat card ──────────────────────────────── */
+  .stat-card {
+    @apply glass-card p-5 flex flex-col gap-2;
+  }
+  .stat-value {
+    @apply text-2xl font-bold;
+    background: linear-gradient(135deg, #f0f0ff, #a99ff8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── Task card ──────────────────────────────── */
+  .task-card {
+    @apply glass-card p-4 cursor-grab active:cursor-grabbing transition-all duration-200;
+  }
+  .task-card:hover {
+    border-color: rgba(124,106,247,0.35);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 0 1px rgba(124,106,247,0.15);
+  }
+
+  /* ── Section header ─────────────────────────── */
+  .section-title {
+    @apply text-xl font-bold;
+    background: linear-gradient(135deg, #ffffff, #a99ff8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── Typing dots ────────────────────────────── */
+  .typing-dot {
+    @apply w-1.5 h-1.5 rounded-full bg-purple-2;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  /* ── Modal ──────────────────────────────────── */
+  .modal-overlay {
+    @apply fixed inset-0 z-50 flex items-center justify-center p-4;
+    background: rgba(4,4,14,0.8);
+    backdrop-filter: blur(8px);
+    animation: fadeIn 0.2s ease;
+  }
+  .modal {
+    @apply glass-card w-full max-w-md p-7 animate-fade-up;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50% { opacity:0.4; transform:scale(0.8); }
+}

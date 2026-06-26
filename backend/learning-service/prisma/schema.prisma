@@ -1,0 +1,49 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x", "linux-arm64-openssl-3.0.x", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Topic {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  desc      String   @default("")
+  category  String   @default("other")
+  steps     Step[]
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("topics")
+}
+
+model Step {
+  id       String    @id @default(cuid())
+  topicId  String
+  topic    Topic     @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  num      String
+  title    String
+  desc     String    @default("")
+  hours    Int       @default(5)
+  order    Int       @default(0)
+  status   String    @default("todo")
+  progress Int       @default(0)
+  sessions Session[]
+
+  @@map("steps")
+}
+
+model Session {
+  id      String   @id @default(cuid())
+  stepId  String
+  step    Step     @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  minutes Int
+  note    String   @default("")
+  date    DateTime @default(now())
+
+  @@map("sessions")
+}

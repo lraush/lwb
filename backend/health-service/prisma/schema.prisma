@@ -1,0 +1,55 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x", "linux-arm64-openssl-3.0.x", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Habit {
+  id          String     @id @default(cuid())
+  userId      String
+  name        String
+  emoji       String     @default("star")
+  goalPerWeek Int        @default(7)
+  logs        HabitLog[]
+  createdAt   DateTime   @default(now())
+
+  @@index([userId])
+  @@map("habits")
+}
+
+model HabitLog {
+  id      String   @id @default(cuid())
+  habitId String
+  habit   Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  date    DateTime @default(now())
+
+  @@map("habit_logs")
+}
+
+model Medication {
+  id         String   @id @default(cuid())
+  userId     String
+  name       String
+  dose       String
+  time       String   @default("Morning")
+  notes      String   @default("")
+  takenToday Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@map("medications")
+}
+
+model WaterLog {
+  id     String   @id @default(cuid())
+  userId String
+  ml     Int      @default(250)
+  date   DateTime @default(now())
+
+  @@index([userId])
+  @@map("water_logs")
+}

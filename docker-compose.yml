@@ -1,0 +1,289 @@
+
+networks:
+  lwb-network:
+    driver: bridge
+
+volumes:
+  postgres-auth:
+  postgres-task:
+  postgres-calendar:
+  postgres-finance:
+  postgres-learning:
+  postgres-health:
+  postgres-events:
+  minio-data:
+
+services:
+  # ─── API Gateway ───────────────────────────────────
+  nginx:
+    image: nginx:1.25-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - auth-service
+      - task-service
+      - calendar-service
+      - finance-service
+      - learning-service
+      - health-service
+      - events-service
+      - ai-service
+      - file-service
+    networks: [lwb-network]
+    restart: unless-stopped
+
+  # ─── Frontend ──────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      - VITE_API_BASE=/api
+    networks: [lwb-network]
+    restart: unless-stopped
+
+  # ─── Auth Service ───────────────────────────────────
+  auth-service:
+    build:
+      context: ./backend/auth-service
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql://lwb:lwbsecret@db-auth:5432/auth_db
+      JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_change_in_prod}
+      PORT: 3001
+    depends_on:
+      db-auth:
+        condition: service_healthy
+    networks: [lwb-network]
+    restart: unless-stopped
+
+  db-auth:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: lwb
+      POSTGRES_PASSWORD: lwbsecret
+      POSTGRES_DB: auth_db
+    volumes: [postgres-auth:/var/lib/postgresql/data]
+    networks: [lwb-network]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lwb -d auth_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ─── Task Service ───────────────────────────────────
+  task-service:
+    build:
+      context: ./backend/task-service
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql://lwb:lwbsecret@db-task:5432/task_db
+      JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_change_in_prod}
+      AUTH_SERVICE_URL: http://auth-service:3001
+      PORT: 3002
+    depends_on:
+      db-task:
+        condition: service_healthy
+    networks: [lwb-network]
+    restart: unless-stopped
+
+  db-task:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: lwb
+      POSTGRES_PASSWORD: lwbsecret
+      POSTGRES_DB: task_db
+    volumes: [postgres-task:/var/lib/postgresql/data]
+    networks: [lwb-network]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lwb -d task_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ─── Calendar Service ────────────────────────────────
+  calendar-service:
+    build:
+      context: ./backend/calendar-service
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql://lwb:lwbsecret@db-calendar:5432/calendar_db
+      JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_change_in_prod}
+      PORT: 3003
+    depends_on:
+      db-calendar:
+        condition: service_healthy
+    networks: [lwb-network]
+    restart: unless-stopped
+
+  db-calendar:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: lwb
+      POSTGRES_PASSWORD: lwbsecret
+      POSTGRES_DB: calendar_db
+    volumes: [postgres-calendar:/var/lib/postgresql/data]
+    networks: [lwb-network]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lwb -d calendar_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ─── Finance Service ─────────────────────────────────
+  finance-service:
+    build:
+      context: ./backend/finance-service
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql://lwb:lwbsecret@db-finance:5432/finance_db
+      JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_change_in_prod}
+      PORT: 3004
+    depends_on:
+      db-finance:
+        condition: service_healthy
+    networks: [lwb-network]
+    restart: unless-stopped
+
+  db-finance:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: lwb
+      POSTGRES_PASSWORD: lwbsecret
+      POSTGRES_DB: finance_db
+    volumes: [postgres-finance:/var/lib/postgresql/data]
+    networks: [lwb-network]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lwb -d finance_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ─── Learning Service ────────────────────────────────
+  learning-service:
+    build:
+      context: ./backend/learning-service
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql://lwb:lwbsecret@db-learning:5432/learning_db
+      JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_change_in_prod}
+      PORT: 3005
+    depends_on:
+      db-learning:
+        condition: service_healthy
+    networks: [lwb-network]
+    restart: unless-stopped
+
+  db-learning:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: lwb
+      POSTGRES_PASSWORD: lwbsecret
+      POSTGRES_DB: learning_db
+    volumes: [postgres-learning:/var/lib/postgresql/data]
+    networks: [lwb-network]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lwb -d learning_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ─── Health Service ──────────────────────────────────
+  health-service:
+    build:
+      context: ./backend/health-service
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql://lwb:lwbsecret@db-health:5432/health_db
+      JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_change_in_prod}
+      PORT: 3006
+    depends_on:
+      db-health:
+        condition: service_healthy
+    networks: [lwb-network]
+    restart: unless-stopped
+
+  db-health:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: lwb
+      POSTGRES_PASSWORD: lwbsecret
+      POSTGRES_DB: health_db
+    volumes: [postgres-health:/var/lib/postgresql/data]
+    networks: [lwb-network]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lwb -d health_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ─── Events Service ──────────────────────────────────
+  events-service:
+    build:
+      context: ./backend/events-service
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql://lwb:lwbsecret@db-events:5432/events_db
+      JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_change_in_prod}
+      PORT: 3007
+    depends_on:
+      db-events:
+        condition: service_healthy
+    networks: [lwb-network]
+    restart: unless-stopped
+
+  db-events:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: lwb
+      POSTGRES_PASSWORD: lwbsecret
+      POSTGRES_DB: events_db
+    volumes: [postgres-events:/var/lib/postgresql/data]
+    networks: [lwb-network]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lwb -d events_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ─── AI Service (Python/FastAPI) ─────────────────────
+  ai-service:
+    build:
+      context: ./backend/ai-service
+      dockerfile: Dockerfile
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-your_openai_key_here}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-your_anthropic_key_here}
+      PORT: 8000
+    networks: [lwb-network]
+    restart: unless-stopped
+
+  # ─── File Service + MinIO ─────────────────────────────
+  file-service:
+    build:
+      context: ./backend/file-service
+      dockerfile: Dockerfile
+    environment:
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_change_in_prod}
+      PORT: 3008
+    depends_on: [minio]
+    networks: [lwb-network]
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes: [minio-data:/data]
+    networks: [lwb-network]
+    ports:
+      - "9001:9001"  # MinIO console for dev
